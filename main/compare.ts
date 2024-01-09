@@ -49,43 +49,6 @@ const matchedResultsMapOrder =
     return 0;
   };
 
-// first match order
-const firstMatchOrder =
-  (fields: string[]) => (left: ConversationType, right: ConversationType) => {
-    if (left.firstMatch && right.firstMatch) {
-      const diffField =
-        fields.indexOf(left.firstMatch.field) -
-        fields.indexOf(right.firstMatch.field);
-
-      if (diffField !== 0) {
-        return diffField;
-      }
-
-      const diffPosition = left.firstMatch.position - right.firstMatch.position;
-      if (diffPosition !== 0) {
-        return diffPosition;
-      }
-
-      if (left.firstMatch.value < right.firstMatch.value) {
-        return -1;
-      } else if (left.firstMatch.value > right.firstMatch.value) {
-        return 1;
-      } else {
-        return 0;
-      }
-    }
-
-    if (left.firstMatch) {
-      return -1;
-    }
-
-    if (right.firstMatch) {
-      return 1;
-    }
-
-    return 0;
-  };
-
 // ActiveAt ordering
 const activeAtOrder = (left: ConversationType, right: ConversationType) => {
   if (left.activeAt || right.activeAt) {
@@ -167,43 +130,6 @@ const compareConversation: (orderFns: OrderFunction[]) => OrderFunction =
     return result ? result(left, right) : 0;
   };
 
-const contactCompare = compareConversation([
-  firstMatchOrder(SEARCHED_FIELDS),
-  activeAtOrder,
-  nameAndIdOrder,
-]);
-
-const removeGroupMembersCompare: (
-  activeUserNumberList: string[]
-) => OrderFunction = (activeUserNumberList: string[]) => {
-  if (!activeUserNumberList || activeUserNumberList.length === 0) {
-    return compareConversation([orderArchived]);
-  }
-
-  const inactiveList = reverse([...activeUserNumberList]);
-
-  const userNumberToIndexMap: Map<string, number> = new Map(
-    compact(inactiveList).map((id: string, idx: number) => [id, idx + 1])
-  );
-
-  return compareConversation([
-    orderArchived,
-    orderByActiveIndexMap(userNumberToIndexMap),
-    firstMatchOrder(SEARCHED_FIELDS),
-    activeAtOrder,
-    nameAndIdOrder,
-  ]);
-};
-
-const recentCompare: OrderFunction = compareConversation([
-  orderAliveGroup,
-  orderArchived,
-  orderLastMessageTime,
-  firstMatchOrder(SEARCHED_FIELDS),
-  activeAtOrder,
-  nameAndIdOrder,
-]);
-
 const newGroupCompare = compareConversation([
   orderLastMessageTime,
   activeAtOrder,
@@ -278,11 +204,9 @@ const forwardMessageSearchingCompare: (
 
 export {
   SEARCHED_FIELDS,
-  contactCompare,
   orderArchived,
   orderLastMessageTime,
   compareConversation,
-  recentCompare,
   engageMembersCompare,
   newGroupCompare,
   newGroupSearchingCompare,
@@ -291,6 +215,5 @@ export {
   forwardMessageCompare,
   forwardMessageSearchingCompare,
   atPersonCompare,
-  removeGroupMembersCompare,
   engageMembersSearchingCompare,
 };
