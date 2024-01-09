@@ -22,11 +22,13 @@ Import the necessary functions and apply them to an array of conversation object
 
 ```
 // For searching
-import searchAndPopulateMatches from 'path-to-search-library';
+import searchAndPopulateMatches from './ConversationSortSearchUtils
+/search';
 const searchResults = searchAndPopulateMatches(conversations, 'query');
 
 // For sorting
-import { newGroupCompare } from 'path-to-sort-library';
+import { newGroupCompare } from './ConversationSortSearchUtils
+/compare';
 const sortedConversations = conversations.sort(newGroupCompare);
 ```
 
